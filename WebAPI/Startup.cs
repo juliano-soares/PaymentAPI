@@ -1,7 +1,14 @@
+using Aplicacao.Aplication;
+using Aplicacao.Aplication.Interfaces;
+using Dominio.Interfaces;
+using Dominio.Servicos;
+using Infraestrutura.Configuracoes;
+using Infraestrutura.Repositorio;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -26,6 +33,20 @@ namespace WebAPI
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddDbContext<Context>(options =>
+                options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
+
+            // Interfaces and repository
+            services.AddSingleton<IWallet, WalletRepository>();
+            services.AddSingleton<IPayment, PaymentRepository>();
+
+            // service domain
+            services.AddSingleton<IWallet, WalletService>();
+            services.AddSingleton<IPayment, PaymentService>();
+
+            // Interfaces and aplications
+            services.AddSingleton<IWalletAplication, WalletAplication>();
+            services.AddSingleton<IPaymentAplication, PaymentAplication>();
 
             services.AddControllers();
             services.AddSwaggerGen(c =>
